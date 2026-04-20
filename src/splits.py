@@ -10,10 +10,6 @@ def add_split_inplace(
     val_dates: list[str],
     test_dates: list[str],
 ) -> None:
-    """
-    Старый режим: split по file_date.
-    Оставляем для совместимости.
-    """
     df["split"] = "unused"
     df.loc[df["file_date"].astype(str).isin(train_dates), "split"] = "train"
     df.loc[df["file_date"].astype(str).isin(val_dates), "split"] = "val"
@@ -27,16 +23,6 @@ def add_time_split_within_subset_inplace(
     test_ratio: float,
     time_col: str = "event_dt",
 ) -> None:
-    """
-    Новый режим: временной split внутри уже выбранной подвыборки
-    (например, main session одного дня).
-
-    Логика:
-    - сортируем наблюдения по time_col
-    - первые train_ratio -> train
-    - следующие val_ratio -> val
-    - последние test_ratio -> test
-    """
     total = train_ratio + val_ratio + test_ratio
     if not np.isclose(total, 1.0):
         raise ValueError(f"Ratios must sum to 1.0, got {total}")
@@ -69,15 +55,6 @@ def add_time_split_with_purge_inplace(
     purge_sec: int,
     time_col: str = "event_dt",
 ) -> None:
-    """
-    Time-ordered split + purge/embargo around split boundaries.
-
-    После обычного time split:
-    - строки в окне +/- purge_sec вокруг границы train/val помечаются как 'purged'
-    - строки в окне +/- purge_sec вокруг границы val/test помечаются как 'purged'
-
-    Это уменьшает leakage вокруг границ split'ов для fixed-horizon target.
-    """
     total = train_ratio + val_ratio + test_ratio
     if not np.isclose(total, 1.0):
         raise ValueError(f"Ratios must sum to 1.0, got {total}")
@@ -102,13 +79,11 @@ def add_time_split_with_purge_inplace(
 
     embargo = pd.Timedelta(seconds=purge_sec)
 
-    # граница train / val: берем первую точку val
     if 0 < train_end < n:
         boundary_1 = time_arr.iloc[order[train_end]]
         mask_1 = (time_arr >= boundary_1 - embargo) & (time_arr <= boundary_1 + embargo)
         split[mask_1.to_numpy()] = "purged"
 
-    # граница val / test: берем первую точку test
     if 0 < val_end < n:
         boundary_2 = time_arr.iloc[order[val_end]]
         mask_2 = (time_arr >= boundary_2 - embargo) & (time_arr <= boundary_2 + embargo)
@@ -118,10 +93,6 @@ def add_time_split_with_purge_inplace(
 
 
 def split_summary(df: pd.DataFrame, time_col: str = "event_dt") -> pd.DataFrame:
-    """
-    Удобный sanity-check после time split:
-    показывает min/max time и число строк по каждому split.
-    """
     if "split" not in df.columns:
         raise ValueError("Column 'split' not found in DataFrame")
 

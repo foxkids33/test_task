@@ -11,14 +11,6 @@ def build_targets_by_session_inplace(
     mid_col: str = "mid_price",
     session_col: str = "session_id",
 ) -> None:
-    """
-    Строит future targets внутри каждой торговой сессии отдельно.
-
-    Важно:
-    - df должен иметь RangeIndex 0..N-1
-    - target строится по calendar-time через merge_asof
-    - переходы между session_id запрещены по конструкции
-    """
     if not isinstance(df.index, pd.RangeIndex) or df.index.start != 0 or df.index.step != 1:
         raise ValueError("DataFrame must have a simple RangeIndex. Use df.reset_index(drop=True) first.")
 
