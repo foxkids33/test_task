@@ -1,0 +1,10 @@
+# created by virtualenv automatically
+.venv/bin
+data/*
+!data/.gitkeep
+
+outputs/tables/*
+!outputs/tables/.gitkeep
+
+outputs/datasets/*
+!outputs/datasets/.gitkeep
