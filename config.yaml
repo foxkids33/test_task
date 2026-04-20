@@ -1,0 +1,45 @@
+data:
+  raw_dir: "data"
+  file_pattern: "CNYRUBF_*_features.parquet"
+  clean_path: "outputs/datasets/clean.parquet"
+  targets_path: "outputs/datasets/targets_only.parquet"
+  modeling_path: "outputs/datasets/modeling_table.parquet"
+
+time:
+  timestamp_col: "timestamp"
+  timestamp_unit: "ns"
+  horizons_sec: [1, 5, 10]
+
+sessions:
+  main_start_sec: 32400      # 09:00:00
+  main_end_sec: 67800        # 18:50:00
+  evening_start_sec: 68700   # 19:05:00
+  evening_end_sec: 85800     # 23:50:00
+
+experiment:
+  mode: "single_session"
+  file_date: "20250603"
+  session_type: "main"
+  purge_sec: 10
+  split_ratios:
+    train: 0.6
+    val: 0.2
+    test: 0.2
+
+split:
+  train_dates: ["20250603"]
+  val_dates: ["20250604"]
+  test_dates: ["20250605"]
+
+model:
+  random_state: 42
+  ridge_alpha: 1.0
+  lgbm:
+    n_estimators: 300
+    learning_rate: 0.05
+    num_leaves: 31
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.0
+    reg_lambda: 1.0
+    min_child_samples: 50
